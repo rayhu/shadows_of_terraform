@@ -1,0 +1,38 @@
+provider "aws" {
+  region = "{{ region }}"
+}
+
+resource "aws_ecs_cluster" "shadowsocks_cluster" {
+  name = "shadowsocks-cluster"
+}
+
+resource "aws_ecs_task_definition" "shadowsocks_task" {
+  family                   = "shadowsocks-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "shadowsocks-container"
+      image     = "shadowsocks/shadowsocks-libev"
+      essential = true
+      portMappings = [
+        {
+          containerPort = {{ port }}
+          hostPort      = {{ port }}
+          protocol      = "tcp"
+        }
+      ]
+      environment = [
+        {
+          name  = "PASSWORD"
+          value = "{{ password }}"
+        }
+      ],
+      command = ["ss-server", "-s", "0.0.0.0", "-p", "{{ port }}", "-k", "$PASSWORD", "-m", "aes-256-gcm"]
+    }
+  ])
+}

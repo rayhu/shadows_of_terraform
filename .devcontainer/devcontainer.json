@@ -1,0 +1,18 @@
+{
+  "name": "Python Terraform Dev Container",
+  "image": "python-terraform-dev:latest",
+  "runArgs": [
+    "-v", "${localWorkspaceFolder}:/workspace"
+  ],
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "hashicorp.terraform",
+    "ms-python.python",
+    "ms-azuretools.vscode-docker"
+  ],
+  "postCreateCommand": "terraform --version && aws --version && python --version",
+  "remoteUser": "root"
+}

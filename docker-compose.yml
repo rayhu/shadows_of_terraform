@@ -1,0 +1,14 @@
+# Start a dev container
+
+version: '3.8'
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    image: python-terraform-dev:latest
+    container_name: my-python-dev-container
+    volumes:
+      - .:/workspace
+    # ports:
+    #   - "8388:8388"
