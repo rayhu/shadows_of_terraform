@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "shadowsocks_task" {
           value = "{{ password }}"
         }
       ],
-      command = ["ss-server", "-s", "0.0.0.0", "-p", "{{ port }}", "-k", "$PASSWORD", "-m", "aes-256-gcm"]
+      command = ["ss-server", "-s", "0.0.0.0", "-p", "{{ port }}", "-k", "$PASSWORD", "-m", "{{ encryption }}"]
     }
   ])
 }

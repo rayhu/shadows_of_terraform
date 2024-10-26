@@ -8,12 +8,13 @@ DEFAULT_PORT = 8388
 DEFAULT_VPC_ID = "vpc-xxxxxxxx"
 DEFAULT_SUBNET_ID = "subnet-xxxxxxxx"
 DEFAULT_PASSWORD = "your_password"
+DEFAULT_ENCRYPTION = "aes-gcm-256"
 
 def get_user_input(prompt, default_value):
     user_input = input(f"{prompt} [{default_value}]: ")
     return user_input if user_input else default_value
 
-def generate_tf_file(region, port, vpc_id, subnet_id, password):
+def generate_tf_file(region, port, vpc_id, subnet_id, password, encryption):
     # Set up the Jinja2 environment and load the template
     env = Environment(loader=FileSystemLoader('./'))
     template = env.get_template('main.tf.j2')
@@ -24,7 +25,8 @@ def generate_tf_file(region, port, vpc_id, subnet_id, password):
         port=port,
         vpc_id=vpc_id,
         subnet_id=subnet_id,
-        password=password
+        password=password,
+        encryption=encryption
     )
 
     # Write the rendered content to main.tf
@@ -51,14 +53,21 @@ def main():
     print("Welcome to the Shadowsocks ECS Deployment Generator!")
 
     # Get user inputs, falling back to defaults if no input is provided
-    region = get_user_input("Enter AWS region", DEFAULT_REGION)
+    region = get_user_input("Enter AWS region", DEFAULT_REGION).lower()
     port = int(get_user_input("Enter port number", DEFAULT_PORT))
-    vpc_id = get_user_input("Enter VPC ID", DEFAULT_VPC_ID)
-    subnet_id = get_user_input("Enter Subnet ID", DEFAULT_SUBNET_ID)
+    vpc_id = get_user_input("Enter VPC ID", DEFAULT_VPC_ID).lower()
+    subnet_id = get_user_input("Enter Subnet ID", DEFAULT_SUBNET_ID).lower()
     password = get_user_input("Enter Shadowsocks password", DEFAULT_PASSWORD)
+    encryption = get_user_input(
+        "Enter Shadowsocks encryption method:\n"
+        " - ChaCha20-IETF-Poly1305 for mobile devices\n"
+        " - XChaCha20-IETF-Poly1305 for enhanced security\n"
+        " - AES-256-GCM for devices with hardware acceleration\n",
+        DEFAULT_ENCRYPTION
+    ).lower()
 
     # Generate the Terraform configuration file
-    generate_tf_file(region, port, vpc_id, subnet_id, password)
+    generate_tf_file(region, port, vpc_id, subnet_id, password, encryption)
 
     # Initialize Terraform
     subprocess.run(["terraform", "init"])
